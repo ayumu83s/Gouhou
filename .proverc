@@ -1,0 +1,2 @@
+--exec "perl -Ilib -Mlib=lib -Mlib=local/lib/perl5"
+

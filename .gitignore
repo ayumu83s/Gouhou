@@ -1,3 +1,6 @@
 local
 .perl-version
+.DS_Store
+*.swp
+*.bak
 

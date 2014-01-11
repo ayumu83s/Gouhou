@@ -5,53 +5,72 @@ use warnings;
 use Time::Piece;
 use Net::Twitter;
 
+use Data::Dumper;
 our $VERSION = "0.01";
 
 sub new {
-    my $class = shift;
-    my %args = @_;
-    my $self = +{
+    my ($class, $args) = @_;
+    my $self = {
         net => Net::Twitter->new(
             traits              => [qw/API::RESTv1_1/],
-            consumer_key        => $args{consumer_key},
-            consumer_secret     => $args{consumer_secret},
-            access_token        => $args{access_token},
-            access_token_secret => $args{access_token_secret},
+            consumer_key        => $args->{consumer_key},
+            consumer_secret     => $args->{consumer_secret},
+            access_token        => $args->{access_token},
+            access_token_secret => $args->{access_token_secret},
         ),
+        start => {
+            wdayname => $args->{start}->{wdayname} //= 'Thu',
+            hour     => $args->{start}->{hour}     //= 0,
+            min      => $args->{start}->{min}      //= 5,
+        },
+        end => {
+            wdayname => $args->{end}->{wdayname}   //= 'Fri',
+            hour     => $args->{end}->{hour}       //= 0,
+            min      => $args->{end}->{min}        //= 5,
+        },
     };
     return bless $self, $class;
 }
 
-# つぶやきと画像の更新
-sub update_twitter {
+# 合法が開始かチェックする
+sub is_start {
     my $self = shift;
     my $now = localtime;
     
-    # 0:05かチェック
-    if ($now->hour == 0 && $now->min == 5) {
-        # 木曜日ならば合法日
-        if ($now->wdayname eq 'Thu') {
-            # 名前を更新
-            $self->{net}->update_profile({
-                name => 'itochin@今日はラーメンの日',
-            });
-            $self->{net}->update_profile_image([
-                "/Users/itochin/work/dev/perl/gouhou_ramen/ramen.png",
-            ]);
-            $self->{net}->update("本日は合法ラーメンの日です！！");
-        }
-        # 金曜日ならば合法終了
-        elsif ($now->wdayname eq 'Fri') {
-            # 名前を更新
-            $self->{net}->update_profile({
-                name => 'itochin',
-            });
-            $self->{net}->update_profile_image([
-                "/Users/itochin/work/dev/perl/gouhou_ramen/normal.png",
-            ]);
-            $self->{net}->update("合法ラーメンの日は終了しました。また来週までさようなら。");
-        }
-    }
+    # 木曜日の0:05かチェック
+    my $check = $self->{start};
+    return if ($now->wdayname ne $check->{wdayname});
+    return if (($now->hour != $check->{hour}) || ($now->min != $check->{min}));
+
+    return 1;
+}
+
+# 合法が終了かチェックする
+sub is_end {
+    my $self = shift;
+    my $now = localtime;
+
+    # 金曜日の0:05かチェック
+    my $check = $self->{end};
+    return if ($now->wdayname ne $check->{wdayname});
+    return if (($now->hour != $check->{hour}) || ($now->min != $check->{min}));
+
+    return 1;
+}
+# つぶやきと画像の更新
+sub update_twitter {
+    my $self = shift;
+    my $args = shift;
+
+   # 名前を更新
+   $self->{net}->update_profile({
+       name => $args->{name},
+   });
+   $self->{net}->update_profile_image([
+       $args->{file},
+   ]);
+   $self->{net}->update($args->{tweet});
+   return;
 }
 
 1;
@@ -66,13 +85,17 @@ Gouhou - It's new $module
 =head1 SYNOPSIS
 
     use Gouhou;
-    my $gouhou = Gouhou->new(
+    my $gouhou = Gouhou->new({
         consumer_key        => 'consumer_key',
         consumer_secret     => 'consumer_secret',
         access_token        => 'access_token',
         access_token_secret => 'access_token_secret',
-    );
-    $gouhou->update_twitter;
+    });
+    $gouhou->update_twitter({
+        name  => 'itochin@今日はラーメンの日',
+        file  => '/res/xxxx.png',
+        tweet => '本日は合法ラーメンの日です！！',
+    });
 
 =head1 DESCRIPTION
 

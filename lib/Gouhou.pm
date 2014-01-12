@@ -61,16 +61,26 @@ sub is_end {
 sub update_twitter {
     my $self = shift;
     my $args = shift;
+    
+    # 名前を更新
+    if ($args->{name}) {
+        $self->{net}->update_profile({
+            name => $args->{name},
+        });
+    }
 
-   # 名前を更新
-   $self->{net}->update_profile({
-       name => $args->{name},
-   });
-   $self->{net}->update_profile_image([
-       $args->{file},
-   ]);
-   $self->{net}->update($args->{tweet});
-   return;
+    # プロフィールアイコン更新
+    if ($args->{prof_image}) {
+        $self->{net}->update_profile_image([
+            $args->{prof_image},
+        ]);
+    }
+
+    # つぶやく
+    if ($args->{tweet}) {
+        $self->{net}->update($args->{tweet});
+    }
+    return;
 }
 
 1;
@@ -92,9 +102,9 @@ Gouhou - It's new $module
         access_token_secret => 'access_token_secret',
     });
     $gouhou->update_twitter({
-        name  => 'itochin@今日はラーメンの日',
-        file  => '/res/xxxx.png',
-        tweet => '本日は合法ラーメンの日です！！',
+        name        => 'itochin@今日はラーメンの日',
+        prof_image  => '/res/xxxx.png',
+        tweet       => '本日は合法ラーメンの日です！！',
     });
 
 =head1 DESCRIPTION

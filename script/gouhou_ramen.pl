@@ -25,10 +25,16 @@ if ($gouhou->is_start) {
     });
 }
 elsif ($gouhou->is_end) {
+    my $tweet = '合法ラーメンの日は終了しました。また来週までさようなら。';
+
+    # 1年の最後ならメッセージを変える
+    if ($gouhou->is_last_end_of_year) {
+        $tweet =  '本年度の合法ラーメンは全て終了しました。また来年までさようなら。';
+    }
     $gouhou->update_twitter({
         name        => 'itochin',
         prof_image  => $normal_icon,
-        tweet       => '合法ラーメンの日は終了しました。また来週までさようなら。',
+        tweet       => $tweet,
     });
 }
 

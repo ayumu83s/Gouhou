@@ -82,5 +82,26 @@ subtest 'is_end' => sub {
         restore_time();
     };
 };
+
+subtest 'is_last_end_of_year' => sub {
+    my $gouhou = Gouhou->new(+{
+        consumer_key        => 'consumer_key',
+        consumer_secret     => 'consumer_secret',
+        access_token        => 'access_token',
+        access_token_secret => 'access_token_secret',
+    });
+    subtest '最後の金曜日' => sub {
+        my $t = localtime(Time::Piece->strptime('2014/12/25 00:00:00', '%Y/%m/%d %H:%M:%S'));
+        set_fixed_time($t->epoch);
+        is($gouhou->is_last_end_of_year, 1);
+        restore_time();
+    };
+    subtest '普通の金曜日' => sub {
+        my $t = localtime(Time::Piece->strptime('2015/1/1 00:00:00', '%Y/%m/%d %H:%M:%S'));
+        set_fixed_time($t->epoch);
+        is($gouhou->is_last_end_of_year, undef);
+        restore_time();
+    };
+};
 done_testing;
 

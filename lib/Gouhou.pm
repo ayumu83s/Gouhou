@@ -6,6 +6,7 @@ use Time::Piece;
 use Net::Twitter;
 
 use Data::Dumper;
+use Time::Seconds qw(ONE_DAY);
 our $VERSION = "0.01";
 
 sub new {
@@ -32,7 +33,7 @@ sub new {
     return bless $self, $class;
 }
 
-# 合法が開始かチェックする
+# 合法開始のアナウンスするかチェックする
 sub is_start {
     my $self = shift;
     my $now = localtime;
@@ -45,7 +46,7 @@ sub is_start {
     return 1;
 }
 
-# 合法が終了かチェックする
+# 合法終了のアナウンスするかチェックする
 sub is_end {
     my $self = shift;
     my $now = localtime;
@@ -57,6 +58,18 @@ sub is_end {
 
     return 1;
 }
+
+# 1年最後の合法終了かチェックする
+sub is_last_end_of_year {
+    my $self = shift;
+    my $now = localtime;
+
+    # 次の週の年が大きくなってたら最後だと判断
+    my $next_end = localtime($now + (ONE_DAY * 7));
+    return unless ($next_end->year > $now->year);
+    return 1;
+}
+
 # つぶやきと画像の更新
 sub update_twitter {
     my $self = shift;

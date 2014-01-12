@@ -1,0 +1,2 @@
+5 * * * * /home/Gouhou/script/env.sh "perl -Ilib ./script/gouhou_ramen.pl"
+

@@ -18,6 +18,8 @@ sub new {
             consumer_secret     => $args->{consumer_secret},
             access_token        => $args->{access_token},
             access_token_secret => $args->{access_token_secret},
+            # HTTPSでAPI実行しないと、2014/1/15から403が返る
+            ssl                 => $args->{ssl} //=1,
         ),
         start => {
             wdayname => $args->{start}->{wdayname} //= 'Thu',
@@ -71,6 +73,7 @@ sub is_last_end_of_year {
 }
 
 # つぶやきと画像の更新
+# APIで失敗した場合、Net::Twitter:Errorが返る
 sub update_twitter {
     my $self = shift;
     my $args = shift;
@@ -122,7 +125,7 @@ Gouhou - It's new $module
 
 =head1 DESCRIPTION
 
-Gouhou is ...
+update_twitterに失敗した場合、Net::Twitter::Errorが返ります
 
 =head1 LICENSE
 

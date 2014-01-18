@@ -5,6 +5,7 @@ use Test::MockTime qw(set_fixed_time restore_time);
 use Gouhou;
 use Data::Dumper;
 use Time::Piece;
+use Config::Pit;
 
 subtest 'new' => sub {
     my $gouhou = Gouhou->new(+{
@@ -101,6 +102,46 @@ subtest 'is_last_end_of_year' => sub {
         set_fixed_time($t->epoch);
         is($gouhou->is_last_end_of_year, undef);
         restore_time();
+    };
+};
+
+subtest 'update_twitter' => sub {
+    subtest 'HTTPでAPI実行' => sub {
+        my $config = Config::Pit::get("GouhouAOuth");
+        $config->{ssl} = 0;
+        my $gouhou = Gouhou->new($config);
+        eval {
+            # 同じリクエストすると403になるので、乱数付ける
+            my $test_name = 'itochin_:' . int(rand(100));
+            $gouhou->update_twitter({
+                name => $test_name,
+            });
+        };
+        ok($@);
+        isa_ok($@, "Net::Twitter::Error");
+        is($@->code, 403);
+    };
+    subtest 'HTTPSでAPI実行' => sub {
+        my $config = Config::Pit::get("GouhouAOuth");
+        my $gouhou = Gouhou->new($config);
+
+        # 同じリクエストすると403になるので、乱数付ける
+        my $test_name = 'itochin_:' . int(rand(100));
+        $gouhou->update_twitter({
+            name => $test_name,
+        });
+        ok(!$@);
+    };
+    subtest 'HTTPSでAPI実行' => sub {
+        my $config = Config::Pit::get("GouhouAOuth");
+        my $gouhou = Gouhou->new($config);
+
+        # 名前を元に戻す
+        my $test_name = 'itochin';
+        $gouhou->update_twitter({
+            name => $test_name,
+        });
+        ok(!$@);
     };
 };
 done_testing;

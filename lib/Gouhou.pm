@@ -73,6 +73,7 @@ sub is_last_end_of_year {
 }
 
 # つぶやきと画像の更新
+# APIで失敗した場合、Net::Twitter:Errorが返る
 sub update_twitter {
     my $self = shift;
     my $args = shift;
@@ -124,7 +125,7 @@ Gouhou - It's new $module
 
 =head1 DESCRIPTION
 
-Gouhou is ...
+update_twitterに失敗した場合、Net::Twitter::Errorが返ります
 
 =head1 LICENSE
 

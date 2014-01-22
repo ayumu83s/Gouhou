@@ -9,7 +9,7 @@ use FindBin;
 use File::Spec;
 use Try::Tiny;
 use Time::Piece;
-use Carp qw(cloak);
+use Carp qw(croak);
 
 my $base_dir = "$FindBin::Bin/..";
 
@@ -44,7 +44,7 @@ try {
         });
         print "[" . $now . "]" . "gouhou is end success!!";
     }
-catch {
-    cloak $_;
-}
+} catch {
+    croak $_;
+};
 
